@@ -1,111 +1,110 @@
 #SingleInstance, force
-#MaxThreadsPerHotkey 2 ; So hotkeys like {A:=!A Loop until(!A)} can function
 
 ;================
-;---Parameters---
+;---Parameters--- Edit at will.
 ;================
 global abilityDelay := 45
 global meleeSpamDelay := 45
 global semiDelay := 45
+global chargeTime := 500
+global chargeDelay := 300
 
 ;global GarudaQuickSpamDelay := 450
 ;global GarudaQuickSpamTimes := 13
-; global chargeTime :=
-; global chargeDelay :=
 
-; RGB GUI
+; GUI Settings
+global GUIx := 0 ; X&Y of the GUI
+global GUIy := 900 ;
+global textS := 1 ; Text size
+global textF := "Fixedsys" ; Text font - Alt fonts (monospaced): Consolas, Courier, Courier New, *Fixedsys, Lucida Console, Script, Terminal
+global textW := 700 ; Maximum width of the GUI text
+global textR := 7 ; Maximum number of rows of the GUI text
+
+; Initital color
 global textR := 255
 global textG := 255
 global textB := 0
+global textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
+; GUI Lighting
 global curr := "g"
-global RGBDelay := 60 ; Delay between color swaps
-global RGBStep := 15 ; Must be 17, 17*3, 17*5 or 15 since 255 = 15*17 and formatting cant handle negative numbers (-=)
-
-
-;====================
-;---WF window info---
-;====================
-;Warframe
-;ahk_class WarframePublicEvolutionGfxD3D11
-;ahk_exe Warframe.x64.exe
-;ahk_pid 11972
+global RGBDelay := 100 ; Delay between color swaps
+global RGBStep := 15 ; Must be 17, 17*3, 17*5 or 15
 
 ;=============
-;---Toggles---
+;---Toggles--- Initial state of toggles
 ;=============
 global RGBToggle := false
 global abilitySpam := false
 ;global GarudaQuickSpam := false
 global meleeMode := "None"
-global semiSpamToggle := false
+global fireMode := "None"
 global showGUI := true
 
 ;=========
 ;---GUI---
 ;=========
 
-CustomColor := "AABBCC"
-textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
 Gui +LastFound +AlwaysOnTop -Caption +ToolWindow
+; Transparent background
+CustomColor := "AABBCC"
 Gui, Color, %CustomColor%
-Gui, Font, s1, Fixedsys ;Alt fonts: Consolas, Courier, Courier New, *Fixedsys, Lucida Console, Script, Terminal
-Gui, Add, Text, vGUIText c%textColor% Left w350 r7, Text
 WinSet, TransColor, %CustomColor% 255
+; Text settings
+Gui, Font, s%textS%, %textF%
+Gui, Add, Text, vGUIText c%textColor% Left w%textW% r%textR%, placeHolder
 Gosub, UpdateOSD
-;SetTimer, RGBCycle, %RGBDelay%
-Gui, Show, x0 y900 NoActivate
+SetTimer, RGBCycle, %RGBDelay%
+Gui, Show, x%GUIx% y%GUIy% NoActivate
 return
 
 RGBCycle:
-if (curr = "g"){
-	if (textR > 0) {
-		textR -= RGBStep
-	} else if (textB < 255){
-		textB += RGBStep
-		if (textB = 255){
-			curr := "b"
+if (RGBToggle){
+	if (curr = "g"){
+		if (textR > 0) {
+			textR -= RGBStep
+		} else if (textB < 255){
+			textB += RGBStep
+			if (textB = 255){
+				curr := "b"
+			}
+		}
+	} else if (curr = "b"){
+		if (textG > 0) {
+			textG -= RGBStep
+		} else if (textR < 255){
+			textR += RGBStep
+			if (textR = 255){
+				curr := "r"
+			}
+		}
+	} else if (curr = "r"){
+		if (textB > 0) {
+			textB -= RGBStep
+		} else if (textG < 255){
+			textG += RGBStep
+			if (textG = 255){
+				curr := "g"
+			}
 		}
 	}
-} else if (curr = "b"){
-	if (textG > 0) {
-		textG -= RGBStep
-	} else if (textR < 255){
-		textR += RGBStep
-		if (textR = 255){
-			curr := "r"
-		}
-	}
-} else if (curr = "r"){
-	if (textB > 0) {
-		textB -= RGBStep
-	} else if (textG < 255){
-		textG += RGBStep
-		if (textG = 255){
-			curr := "g"
-		}
-	}
+	textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
+	GuiControl, +c%textColor%, GUIText
+	gosub, UpdateOSD
 }
-textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
-GuiControl, +c%textColor%, GUIText
-GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Semi-Auto - %semiSpamToggle%`n[P] Rainbow GUI - %RGBToggle%
 return
 
 UpdateOSD:
-GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Semi-Auto - %semiSpamToggle%`n[P] Rainbow GUI - %RGBToggle% ;`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%
+GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Fire mode - %fireMode%`n[P] Rainbow GUI - %RGBToggle% ;`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%pp
 return
 
-bringGameIntoFocus(){
-	WinActivate ahk_exe Warframe.x64.exe
-}
 ;====================
 ;---Script Control---
 ;====================
 *F3::
 	Suspend
-	showGUI:=!showGUI
+	showGUI := !showGUI
 	if (showGUI){
-		Gui, Show
-		bringGameIntoFocus()
+		Gui, Show, x%GUIx% y%GUIy% NoActivate
 		return
 	} else {
 		Gui, Hide
@@ -119,17 +118,8 @@ return
 ;---Togglings---
 ;===============
 ~p::
-RGBToggle := !RGBToggle
-gosub, UpdateOSD
-if (RGBToggle){
-	loop {
-		if (!RGBToggle){
-			break
-		}
-		gosub, RGBCycle
-		sleep RGBDelay
-	}
-}
+	RGBToggle := !RGBToggle
+	Gosub, UpdateOSD
 return
 
 ~y::
@@ -139,21 +129,27 @@ return
 
 ~u::
 	if (meleeMode = "None"){
-		meleeMode:= "Glaive"
+		meleeMode := "Glaive"
 	} else if (meleeMode = "Glaive"){
-		meleeMode:= "Spam"
-	} else meleeMode:="None"
+		meleeMode := "Spam"
+	} else meleeMode := "None"
 	Gosub, UpdateOSD
 return
 
 ~i::
-	semiSpamToggle	:=	!semiSpamToggle
+	if (fireMode = "None"){
+		fireMode := "Semi"
+	} else if (fireMode = "Semi"){
+		fireMode := "Charge"
+	} else fireMode := "None"
 	Gosub, UpdateOSD
 return
+
 ~o::
 	GarudaQuickSpam := !GarudaQuickSpam
 	Gosub, UpdateOSD
 return
+
 ;============
 ;---Tuning---
 ;============
@@ -173,41 +169,41 @@ return
 ;==================
 ;---Ability spam---
 ;==================
-; 1st
+; 1st Ability
 *1::
 if (abilitySpam){
 	while GetKeyState("1","P"){
-		send, {1}
+		send, {Blind}{1}
 		sleep abilityDelay
 	}
 } else send {Blind}{1 DownR}
 return
 *1 Up:: send {Blind}{1 Up}
-; 2nd
+; 2nd Ability
 *2::
 if (abilitySpam){
 	while GetKeyState("2","P"){
-		send, {2}
+		send, {Blind}{2}
 		sleep abilityDelay
 	}
 } else send {Blind}{2 DownR}
 return
 *2 Up:: send {Blind}{2 Up}
-; 3nd
+; 3rd Ability
 *3::
 if (abilitySpam){
 	while GetKeyState("3","P"){
-		send, {3}
+		send, {Blind}{3}
 		sleep abilityDelay
 	}
 } else send {Blind}{3 DownR}
 return
 *3 Up:: send {Blind}{3 Up}
-; 4th
+; 4th Ability
 *4::
 if (abilitySpam){
 	while GetKeyState("4","P"){
-		send, {4}
+		send, {Blind}{4}
 		sleep abilityDelay
 	}
 } else send {Blind}{4 DownR}
@@ -220,11 +216,11 @@ return
 ~XButton1::
 if (meleeMode = "Spam"){
 	while GetKeyState("XButton1","P"){
-		send, {XButton1}
+		send, {Blind}{XButton1}
 		sleep meleeSpamDelay
 	}
 } else if (meleeMode = "Glaive") {
-	send, {MButton}
+	send, {Blind}{MButton}
 }
 return
 
@@ -232,7 +228,7 @@ return
 ~XButton2::
 if (abilitySpam){
 	while GetKeyState("XButton2","P"){
-		send, {2}
+		send, {Blind}{2}
 		sleep abilityDelay
 	}
 }
@@ -257,11 +253,22 @@ return
 
 ; Spam semi-automatics
 ~LButton::
-if (semiSpamToggle)
+if (fireMode = "Semi"){
 	while GetKeyState("LButton","P"){
-		send, {LButton}
+		send, {Blind}{LButton}
 		sleep semiDelay
 	}
+} else if (fireMode = "Charge") {
+	while GetKeyState("LButton","P"){
+		sleep chargeTime
+		send, {Blind}{LButton Up}
+		sleep chargeDelay
+		if (!GetKeyState("LButton","P")){
+			break
+		}
+		send, {Blind}{LButton Down}
+	}
+}
 return
 
 *c::LButton

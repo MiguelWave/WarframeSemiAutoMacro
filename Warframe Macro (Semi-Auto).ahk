@@ -6,11 +6,11 @@
 global abilityDelay := 45
 global meleeSpamDelay := 45
 global semiDelay := 45
+global chargeTime := 500
+global chargeDelay := 300
 
 ;global GarudaQuickSpamDelay := 450
 ;global GarudaQuickSpamTimes := 13
-; global chargeTime :=
-; global chargeDelay :=
 
 ; GUI Settings
 global GUIx := 0 ; X&Y of the GUI
@@ -25,6 +25,7 @@ global textR := 255
 global textG := 255
 global textB := 0
 global textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
+
 ; GUI Lighting
 global curr := "g"
 global RGBDelay := 100 ; Delay between color swaps
@@ -37,7 +38,7 @@ global RGBToggle := false
 global abilitySpam := false
 ;global GarudaQuickSpam := false
 global meleeMode := "None"
-global semiSpamToggle := false
+global fireMode := "None"
 global showGUI := true
 
 ;=========
@@ -94,7 +95,7 @@ if (RGBToggle){
 return
 
 UpdateOSD:
-GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Semi-Auto - %semiSpamToggle%`n[P] Rainbow GUI - %RGBToggle% ;`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%pp
+GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Fire mode - %fireMode%`n[P] Rainbow GUI - %RGBToggle% ;`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%pp
 return
 
 ;====================
@@ -129,15 +130,19 @@ return
 
 ~u::
 	if (meleeMode = "None"){
-		meleeMode:= "Glaive"
+		meleeMode := "Glaive"
 	} else if (meleeMode = "Glaive"){
-		meleeMode:= "Spam"
-	} else meleeMode:="None"
+		meleeMode := "Spam"
+	} else meleeMode := "None"
 	Gosub, UpdateOSD
 return
 
 ~i::
-	semiSpamToggle	:=	!semiSpamToggle
+	if (fireMode = "None"){
+		fireMode := "Semi"
+	} else if (fireMode = "Semi"){
+		fireMode := "Charge"
+	} else fireMode := "None"
 	Gosub, UpdateOSD
 return
 
@@ -249,11 +254,22 @@ return
 
 ; Spam semi-automatics
 ~LButton::
-if (semiSpamToggle)
+if (fireMode = "Semi"){
 	while GetKeyState("LButton","P"){
 		send, {Blind}{LButton}
 		sleep semiDelay
 	}
+} else if (fireMode = "Charge") {
+	while GetKeyState("LButton","P"){
+		sleep chargeTime
+		send, {Blind}{LButton Up}
+		sleep chargeDelay
+		if (!GetKeyState("LButton","P")){
+			break
+		}
+		send, {Blind}{LButton Down}
+	}
+}
 return
 
 *c::LButton

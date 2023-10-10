@@ -104,22 +104,22 @@ return
 ;---Tuning---
 ;============
 Up::
-switch AgentOfChange{
-case "Ability delay":
-	AgentOfChange := "Charge delay"
-	return
-case "Melee delay":
-	AgentOfChange := "Ability delay"
-	return
-case "Semi delay":
-	AgentOfChange := "Melee delay"
-	return
-case "Charge time":
-	AgentOfChange := "Semi delay"
-	return
-case "Charge delay":
-	AgentOfChange := "Charge time"
-	return
+switch AgentOfChange {
+	case "Ability delay":
+		AgentOfChange := "Charge delay"
+		return
+	case "Melee delay":
+		AgentOfChange := "Ability delay"
+		return
+	case "Semi delay":
+		AgentOfChange := "Melee delay"
+		return
+	case "Charge time":
+		AgentOfChange := "Semi delay"
+		return
+	case "Charge delay":
+		AgentOfChange := "Charge time"
+		return
 }
 Gosub, UpdateOSD
 return

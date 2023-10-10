@@ -104,45 +104,53 @@ return
 ;---Tuning---
 ;============
 Up::
-switch AgentOfChange{
-case "Ability delay":
-	AgentOfChange := "Charge delay"
-	return
-case "Melee delay":
-	AgentOfChange := "Ability delay"
-	return
-case "Semi delay":
-	AgentOfChange := "Melee delay"
-	return
-case "Charge time":
-	AgentOfChange := "Semi delay"
-	return
-case "Charge delay":
-	AgentOfChange := "Charge time"
-	return
+switch AgentOfChange {
+	case "Ability delay":
+		AgentOfChange := "Charge delay"
+		Gosub, UpdateOSD
+		return
+	case "Melee delay":
+		AgentOfChange := "Ability delay"
+		Gosub, UpdateOSD
+		return
+	case "Semi delay":
+		AgentOfChange := "Melee delay"
+		Gosub, UpdateOSD
+		return
+	case "Charge time":
+		AgentOfChange := "Semi delay"
+		Gosub, UpdateOSD
+		return
+	case "Charge delay":
+		AgentOfChange := "Charge time"
+		Gosub, UpdateOSD
+		return
 }
-Gosub, UpdateOSD
 return
 
 Down::
 switch AgentOfChange{
 case "Ability delay":
 	AgentOfChange := "Melee delay"
+	Gosub, UpdateOSD
 	return
 case "Melee delay":
 	AgentOfChange := "Semi delay"
+	Gosub, UpdateOSD
 	return
 case "Semi delay":
 	AgentOfChange := "Charge time"
+	Gosub, UpdateOSD
 	return
 case "Charge time":
 	AgentOfChange := "Charge delay"
+	Gosub, UpdateOSD
 	return
 case "Charge delay":
 	AgentOfChange := "Ability delay"
+	Gosub, UpdateOSD
 	return
 }
-gosub, UpdateOSD
 return
 
 Right::
@@ -150,30 +158,34 @@ switch AgentOfChange{
 case "Ability delay":
 	if (abilityDelay<1000){
 		abilityDelay += tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Melee delay":
 	if (meleeDelay<1000){
 		meleeDelay += tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Semi delay":
 	if (semiDelay<1000){
 		semiDelay += tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Charge time":
 	if (chargeTime<1000){
 		chargeTime += tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Charge delay":
 	if (chargeDelay<1000){
 		chargeDelay += tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 }
-gosub, UpdateOSD
 return
 
 Left::
@@ -181,30 +193,34 @@ switch AgentOfChange{
 case "Ability delay":
 	if (abilityDelay>10){
 		abilityDelay -= tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Melee delay":
 	if (meleeDelay>10){
 		meleeDelay -= tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Semi delay":
 	if (semiDelay>10){
 		semiDelay -= tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Charge time":
 	if (chargeTime>10){
 		chargeTime -= tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 case "Charge delay":
 	if (chargeDelay>10){
 		chargeDelay -= tuningStep
+		Gosub, UpdateOSD
 	}
 	return
 }
-gosub, UpdateOSD
 return
 
 ;====================

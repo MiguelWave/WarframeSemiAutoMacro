@@ -14,28 +14,31 @@ global chargeDelay := 300
 
 ; GUI Settings
 global GUIx := 0 ; X&Y of the GUI
-global GUIy := 900 ;
+global GUIy := 600 ;
 global textS := 1 ; Text size
 global textF := "Fixedsys" ; Text font - Alt fonts (monospaced): Consolas, Courier, Courier New, *Fixedsys, Lucida Console, Script, Terminal
-global textW := 700 ; Maximum width of the GUI text
-global textR := 7 ; Maximum number of rows of the GUI text
+global textW := 500 ; Maximum width of the GUI text
+;global textR := 1 ; bugged? seems to have no effect on the number of lines
 
-; Initital color
+; Initital text color
 global textR := 255
 global textG := 255
 global textB := 0
 global textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
+
 ; GUI Lighting
 global curr := "g"
 global RGBDelay := 100 ; Delay between color swaps
 global RGBStep := 15 ; Must be 17, 17*3, 17*5 or 15
+
+global tuningStep := 45
+global AgentOfChange := "Ability delay"
 
 ;=============
 ;---Toggles--- Initial state of toggles
 ;=============
 global RGBToggle := false
 global abilitySpam := false
-;global GarudaQuickSpam := false
 global meleeMode := "None"
 global fireMode := "None"
 global showGUI := true
@@ -94,7 +97,114 @@ if (RGBToggle){
 return
 
 UpdateOSD:
-GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Fire mode - %fireMode%`n[P] Rainbow GUI - %RGBToggle% ;`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%pp
+GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Fire mode - %fireMode%`n[P] Rainbow GUI - %RGBToggle%`n`n[Arrows] Currently changing - %AgentOfChange%`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%`nCharge time - %chargeTime%`nCharge delay - %chargeDelay%
+return
+
+;============
+;---Tuning---
+;============
+Up::
+switch AgentOfChange{
+case "Ability delay":
+	AgentOfChange := "Charge delay"
+	return
+case "Melee delay":
+	AgentOfChange := "Ability delay"
+	return
+case "Semi delay":
+	AgentOfChange := "Melee delay"
+	return
+case "Charge time":
+	AgentOfChange := "Semi delay"
+	return
+case "Charge delay":
+	AgentOfChange := "Charge time"
+	return
+}
+Gosub, UpdateOSD
+return
+
+Down::
+switch AgentOfChange{
+case "Ability delay":
+	AgentOfChange := "Melee delay"
+	return
+case "Melee delay":
+	AgentOfChange := "Semi delay"
+	return
+case "Semi delay":
+	AgentOfChange := "Charge time"
+	return
+case "Charge time":
+	AgentOfChange := "Charge delay"
+	return
+case "Charge delay":
+	AgentOfChange := "Ability delay"
+	return
+}
+gosub, UpdateOSD
+return
+
+Right::
+switch AgentOfChange{
+case "Ability delay":
+	if (abilityDelay<1000){
+		abilityDelay += tuningStep
+	}
+	return
+case "Melee delay":
+	if (meleeDelay<1000){
+		meleeDelay += tuningStep
+	}
+	return
+case "Semi delay":
+	if (semiDelay<1000){
+		semiDelay += tuningStep
+	}
+	return
+case "Charge time":
+	if (chargeTime<1000){
+		chargeTime += tuningStep
+	}
+	return
+case "Charge delay":
+	if (chargeDelay<1000){
+		chargeDelay += tuningStep
+	}
+	return
+}
+gosub, UpdateOSD
+return
+
+Left::
+switch AgentOfChange{
+case "Ability delay":
+	if (abilityDelay>10){
+		abilityDelay -= tuningStep
+	}
+	return
+case "Melee delay":
+	if (meleeDelay>10){
+		meleeDelay -= tuningStep
+	}
+	return
+case "Semi delay":
+	if (semiDelay>10){
+		semiDelay -= tuningStep
+	}
+	return
+case "Charge time":
+	if (chargeTime>10){
+		chargeTime -= tuningStep
+	}
+	return
+case "Charge delay":
+	if (chargeDelay>10){
+		chargeDelay -= tuningStep
+	}
+	return
+}
+gosub, UpdateOSD
 return
 
 ;====================
@@ -117,17 +227,17 @@ return
 ;===============
 ;---Togglings---
 ;===============
-~p::
+!p::
 	RGBToggle := !RGBToggle
 	Gosub, UpdateOSD
 return
 
-~y::
+!y::
 	abilitySpam:=!abilitySpam
 	Gosub, UpdateOSD
 return
 
-~u::
+!u::
 	if (meleeMode = "None"){
 		meleeMode := "Glaive"
 	} else if (meleeMode = "Glaive"){
@@ -136,7 +246,7 @@ return
 	Gosub, UpdateOSD
 return
 
-~i::
+!i::
 	if (fireMode = "None"){
 		fireMode := "Semi"
 	} else if (fireMode = "Semi"){
@@ -145,27 +255,6 @@ return
 	Gosub, UpdateOSD
 return
 
-~o::
-	GarudaQuickSpam := !GarudaQuickSpam
-	Gosub, UpdateOSD
-return
-
-;============
-;---Tuning---
-;============
-; Melee spam:
-~b & u::
-	if (meleeSpamDelay>50){
-		meleeSpamDelay:=meleeSpamDelay-50
-	}
-	return
-~m & u::
-	if (meleeSpamDelay<1000){
-		meleeSpamDelay:=meleeSpamDelay+50
-	}
-	return
-~n & u:: meleeSpamDelay := 200
-; Work in progress
 ;==================
 ;---Ability spam---
 ;==================
@@ -271,8 +360,7 @@ if (fireMode = "Semi"){
 }
 return
 
-*c::LButton
-*z::send {LControl Down}
+!z::send {LControl Down}
 ;---Glaive mode alt---
 ;~MButton::
 ;if (glaiveMode)
@@ -281,5 +369,5 @@ return
 ;----------------------
 ;To-do:
 ; Make script exclusive to wf
-;
+;	Make an extension GUI displaying parameters
 ;

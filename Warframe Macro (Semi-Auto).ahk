@@ -21,7 +21,7 @@ global textW := 500 ; Maximum width of the GUI text
 ;global textR := 1 ; bugged? seems to have no effect on the number of lines
 
 ; Initital text color
-global textR := 255
+global textR := 255 ; Oddity: Starting color R not being 255 only prints out the first line of the GUI
 global textG := 255
 global textB := 0
 global textColor := Format("{:.2x}{:.2x}{:.2x}", textR, textG, textB)
@@ -37,11 +37,11 @@ global AgentOfChange := "Ability delay"
 ;=============
 ;---Toggles--- Initial state of toggles
 ;=============
-global RGBToggle := false
 global abilitySpam := false
 global meleeMode := "None"
 global fireMode := "None"
-global showGUI := true
+global IsSuspended := false
+global RGBToggle := false
 
 ;=========
 ;---GUI---
@@ -98,6 +98,10 @@ return
 
 UpdateOSD:
 GuiControl,, GUIText, [Y] Ability spam - %abilitySpam%`n[U] Melee mode - %meleeMode%`n[I] Fire mode - %fireMode%`n[P] Rainbow GUI - %RGBToggle%`n`n[Arrows] Currently changing - %AgentOfChange%`n`nAbility delay - %abilityDelay%`nMelee delay - %meleeSpamDelay%`nSemi delay - %semiDelay%`nCharge time - %chargeTime%`nCharge delay - %chargeDelay%
+return
+
+SuspendMsg:
+GuiControl,, GUIText, [F3] Script suspended
 return
 
 ;============
@@ -228,12 +232,12 @@ return
 ;====================
 *F3::
 	Suspend
-	showGUI := !showGUI
-	if (showGUI){
-		Gui, Show, x%GUIx% y%GUIy% NoActivate
+	IsSuspended := !IsSuspended
+	if (!IsSuspended){
+		Gosub, UpdateOSD
 		return
 	} else {
-		Gui, Hide
+		Gosub, SuspendMsg
 		return
 	}
 return

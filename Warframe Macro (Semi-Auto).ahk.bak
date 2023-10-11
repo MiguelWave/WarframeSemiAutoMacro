@@ -40,7 +40,7 @@ global AgentOfChange := "Ability delay"
 global abilitySpam := false
 global meleeMode := "None"
 global fireMode := "None"
-global showGUI := true
+global IsSuspended := false
 global RGBToggle := false
 
 ;=========
@@ -232,8 +232,8 @@ return
 ;====================
 *F3::
 	Suspend
-	showGUI := !showGUI
-	if (showGUI){
+	IsSuspended := !IsSuspended
+	if (!IsSuspended){
 		Gosub, UpdateOSD
 		return
 	} else {

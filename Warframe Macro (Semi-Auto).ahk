@@ -61,7 +61,7 @@ Gui, Show, x%GUIx% y%GUIy% NoActivate
 return
 
 RGBCycle:
-if (RGBToggle){
+if (RGBToggle & !IsSuspended){
 	if (curr = "g"){
 		if (textR > 0) {
 			textR -= RGBStep
